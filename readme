@@ -1,0 +1,63 @@
+# Triggering Jenkins Jobs
+
+## Configuration
+
+### AWS
+
+You need to open access to jenkins-srv:8080 from github. check https://api.github.com/meta and look for 'hooks' section.
+
+One of the aproaches: create a security group that allows 8080 acces from those IPs and add acces from that group to jenkins-srv.
+
+### Jenkins
+
+#### Prerequisits
+
+**Required pluging**:
+- Git Plugin
+- GitHub Plugin
+- GitHub Integration
+- GitHub Branch Source Plugin
+
+#### Manage Jenkins
+
+1. Jenkins using SSH key accessing GitHub. So you need to have this key on you Jenkins server
+
+Manage Jenkins -> Security -> Configure Global Security -> Git Host Key Verification Configuration ->
+- Host Key Verification Strategy:                         Accept first connection
+-> Apply
+
+This will simulates typing 'yes'+enter on the first ssh connection.
+
+2. Create a job
+
+Jenkins -> Create job -> Pipeline -> Ok ->
+- Pipeline:                                               Pipeline script from SCM (Source Code Manager)
+- SCM:                                                    Git
+- Repository URL:                                         git@github.com:YOUR_GIT_ACCOUNT/jenkinstriggers.git (SSH URL)
+- Credentials:                                            Add -> Jenkins -> SSH user with private key ->
+- ID:                                                     gitsshkey
+- Username:                                               YOUR_GIT_ACCOUNT
+- Private Key:                                            Enter directly
+- Key:                                                    your SSH key for GitHub
+-> Create -> Choose new key ->
+- Branch Specifier:                                       branchname
+-> Save
+
+3. Try Build now
+
+### GitHub
+
+GitHub -> jenkinstriggers repo -> Settings -> Webhooks -> Add webhook ->
+- Payload URL:                                            http://jenkins-srv-IP:8080/github-webhook/
+- Content type:                                           application/hson
+- SSL verification:                                       Disable (not recommended)
+- events to trigger this webhook:                         leave 'just push' or select needed events
+-> Add webhook
+
+### Jenkins Job
+
+Job -> Configure -> Triggers ->
+- GitHub hook trigger for GITScm polling                  True
+-> Save
+
+Make some changes in jenkinstriggers project and push to github for testing.
