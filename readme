@@ -45,7 +45,9 @@ Jenkins -> Create job -> Pipeline -> Ok ->
 
 3. Try Build now
 
-### GitHub
+## Triggers
+
+### Add a trigger in GitHub
 
 GitHub -> jenkinstriggers repo -> Settings -> Webhooks -> Add webhook ->
 - Payload URL:                                            http://jenkins-srv-IP:8080/github-webhook/
@@ -54,10 +56,26 @@ GitHub -> jenkinstriggers repo -> Settings -> Webhooks -> Add webhook ->
 - events to trigger this webhook:                         leave 'just push' or select needed events
 -> Add webhook
 
-### Jenkins Job
+### GITScm polling
 
-Job -> Configure -> Triggers ->
+We add a trigger to GitHub repository and it fires Jenkins pipeline on selected events (like push).
+
+Jenkins -> Job -> Configure -> Triggers ->
 - GitHub hook trigger for GITScm polling                  True
 -> Save
+
+Make some changes in jenkinstriggers project and push to github for testing.
+
+### Poll SCM
+
+Jenkins periodically checks if selected events have happened in GitHib repo and fires the pipeline if they were.
+
+Jenkins -> Job -> Configure -> Triggers ->
+- GitHub hook trigger for GITScm polling                  False
+- Poll SCM:                                               True
+- Schedule:                                               Set a cron expression (like */10 * * * *)
+-> Save
+
+Now you can monitor the Job's Git Polling log.
 
 Make some changes in jenkinstriggers project and push to github for testing.
